@@ -2,7 +2,7 @@ activation: torch.nn.LeakyReLU()
 average: weighted
 base_encoder: paraphrase-mpnet-base-v2
 criterion: torch.nn.CrossEntropyLoss(reduction='none')
-data_path: /zfsauton/data/public/redman/
+data_path: KeyClassReproduce/scripts/data/
 dataset: coronary_angio_nlp
 device: cuda
 end_model_batch_size: 128
