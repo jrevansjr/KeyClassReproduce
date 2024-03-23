@@ -258,8 +258,8 @@ class Parser:
 
     def __init__(
             self,
-            config_file_path='../config_files/default_config.yml',
-            default_config_file_path='../config_files/default_config.yml'):
+            config_file_path='./KeyClassReproduce/config_files/default_config.yml',
+            default_config_file_path='./KeyClassReproduce/config_files/default_config.yml'):
         """Class to read and parse the config.yml file
 		"""
         self.config_file_path = config_file_path
