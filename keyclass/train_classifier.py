@@ -201,10 +201,10 @@ def self_train(model: torch.nn.Module,
         with torch.no_grad():
             # Assuming model.predict_proba and get_q_soft are adapted for torch tensors and device handling
             pred_proba = model.predict_proba(X_train[inds], batch_size=batch_size, raw_text=True)
-            target_dist = get_q_soft(pred_proba)  # Assuming this returns a torch.Tensor
-            target_preds = np.argmax(target_dist.cpu().numpy(), axis=1)
+            target_dist = get_q_soft(pred_proba)
+            target_preds = np.argmax(target_dist, axis=1)
 
-            self_train_agreement = np.mean(np.argmax(pred_proba.cpu().numpy(), axis=1) == target_preds)
+            self_train_agreement = np.mean(np.argmax(pred_proba, axis=1) == target_preds)
 
             if self_train_agreement > self_train_thresh:
                 tolcount += 1
