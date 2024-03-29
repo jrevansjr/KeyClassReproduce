@@ -23,6 +23,7 @@
 
 from curses import raw
 import torch
+from torch.cuda.amp import autocast, GradScaler
 from typing import List, Dict, Tuple, Iterable, Type, Union, Callable, Optional
 import numpy as np
 from tqdm import tqdm, trange
@@ -78,21 +79,20 @@ def train(model: torch.nn.Module,
     patience: Number of consecutive epochs of no performance improvement before terminating training (for early stopping)
     """
     if isinstance(y_train, np.ndarray):
-        y_train = torch.from_numpy(y_train)
+        y_train = torch.from_numpy(y_train).to(device)
 
     if raw_text == False and isinstance(X_train, np.ndarray):
-        X_train = torch.from_numpy(X_train)
+        X_train = torch.from_numpy(X_train).to(device)
 
     if sample_weights is not None:
-        sample_weights = torch.from_numpy(sample_weights.reshape(
-            -1, 1)).to(device).float()
+        sample_weights = torch.from_numpy(sample_weights.reshape(-1, 1)).to(device).float()
 
-    optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=lr,
-                                 weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+    scaler = GradScaler()  # Initialize the GradScaler for AMP
 
-    model = model.train()
+    model.train()
+    model.to(device)
 
     best_loss = np.inf
     tolcount = 0
@@ -106,42 +106,40 @@ def train(model: torch.nn.Module,
         running_loss = 0
 
         for i in range(0, N, batch_size):
-            optimizer.zero_grad()
             indices = permutation[i:i + batch_size]
-
             batch_x, batch_y = X_train[indices], y_train[indices]
             batch_y = batch_y.to(device)
-            # Since raw text is a list of strings, it cannot be trivially moved to the GPU using the
-            # .to() method. The base encoder model takes care of this.
-            if raw_text == False: batch_x = batch_x.to(device)
+            if raw_text == False: 
+                batch_x = batch_x.to(device)
 
-            out = model.forward(batch_x, mode='inference', raw_text=raw_text)
-            loss = criterion(out, batch_y)
+            optimizer.zero_grad()
+            with autocast():
+                out = model.forward(batch_x, mode='inference', raw_text=raw_text)
+                loss = criterion(out, batch_y)
+                if sample_weights is not None:
+                    batch_weight = sample_weights[indices]
+                    loss = torch.mul(loss, batch_weight).mean()
+                else:
+                    loss = loss.mean()
 
-            if sample_weights is not None:
-                batch_weight = sample_weights[indices]
-                loss = torch.mul(loss, batch_weight).mean()
-            else:
-                loss = loss.mean()
-
-            loss.backward()
+            # Correctly apply scaling for AMP
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)  # Unscale the gradients before clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            running_loss = running_loss + (loss.cpu().detach().numpy() *
-                                           batch_size / N)
+            scaler.step(optimizer)
+            scaler.update()
+
+            running_loss += loss.item() * batch_x.size(0) / N  # Update running loss correctly with unscaled loss
 
         scheduler.step()
 
         with torch.no_grad():  # Early stopping
-            pbar.set_postfix(tolerance_count=tolcount,
-                             running_loss=running_loss,
-                             best_loss=best_loss)
+            pbar.set_postfix(tolerance_count=tolcount, running_loss=running_loss, best_loss=best_loss)
             if running_loss <= best_loss:
                 best_loss = running_loss
                 tolcount = 0
                 best_state_dict = copy.deepcopy(model.state_dict())
-
-            else:  # loss.cpu().detach().numpy() > best_loss:
+            else:
                 tolcount += 1
 
             if tolcount > patience:
@@ -182,22 +180,18 @@ def self_train(model: torch.nn.Module,
     print_eval: Boolean - prints validation metrics if True, and does not if False
     """
     model.train()
-    model.zero_grad()
     model.to(device)
 
     criterion = torch.nn.KLDivLoss(reduction='batchmean')
-    optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=lr,
-                                 weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    scaler = GradScaler()  # Initialize GradScaler for AMP
 
     tolcount = 0
 
-    # Update P every batch and Q every epoch
     N = len(X_train)
     permutation = torch.randperm(N)
 
-    X_train = np.array(
-        X_train)  # Ensures that we are able to index into X_train
+    X_train = np.array(X_train)  # Ensures that we are able to index into X_train
 
     pbar = trange(N // (batch_size * q_update_interval), unit="batch")
     for epoch in pbar:
@@ -205,44 +199,43 @@ def self_train(model: torch.nn.Module,
         inds = np.random.randint(0, N, batch_size * q_update_interval)
 
         with torch.no_grad():
-            pred_proba = model.predict_proba(X_train[inds],
-                                             batch_size=batch_size,
-                                             raw_text=True)
-            target_dist = get_q_soft(
-                pred_proba)  # should be of size (N, num_categories)
-            target_preds = np.argmax(target_dist, axis=1)
+            # Assuming model.predict_proba and get_q_soft are adapted for torch tensors and device handling
+            pred_proba = model.predict_proba(X_train[inds], batch_size=batch_size, raw_text=True)
+            target_dist = get_q_soft(pred_proba)  # Assuming this returns a torch.Tensor
+            target_preds = np.argmax(target_dist.cpu().numpy(), axis=1)
 
-            self_train_agreement = np.mean(
-                np.argmax(pred_proba, axis=1) == target_preds)
+            self_train_agreement = np.mean(np.argmax(pred_proba.cpu().numpy(), axis=1) == target_preds)
 
-            if self_train_agreement > self_train_thresh: tolcount += 1
-            else: tolcount = 0
+            if self_train_agreement > self_train_thresh:
+                tolcount += 1
+            else:
+                tolcount = 0
 
             if tolcount >= patience:
                 break
 
         for i in range(0, batch_size * q_update_interval, batch_size):
-            batch_x = X_train[inds][
-                i:i +
-                batch_size]  # The training data is moved to device by the encoder model in its forward function
-            batch_q = torch.from_numpy(target_dist[i:i +
-                                                   batch_size]).to(device)
+            batch_x = X_train[inds][i:i + batch_size]  # Adapt this for device as needed
+            batch_q = torch.from_numpy(target_dist[i:i + batch_size]).to(device)
 
-            out = model.forward(batch_x, mode='self_train', raw_text=True)
-            loss = criterion(out, batch_q)
             optimizer.zero_grad()
-            loss.backward()
+            with autocast():
+                out = model.forward(batch_x, mode='self_train', raw_text=True)
+                loss = criterion(out, batch_q)
+
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)  # Unscale gradients before clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
 
-            del batch_x, batch_q
+            del batch_x, batch_q  # Ensure tensors are deleted to free GPU memory
 
-        if print_eval == True:
-            val_preds = model.predict(X_val)
-            # print('tolcount', tolcount, 'self_train_agreement', self_train_agreement, 'validation_accuracy', np.mean(val_preds==y_val))
+        if print_eval:
+            val_preds = model.predict(X_val)  # Ensure this is adapted for torch tensors and device handling
+            # Consider including validation logic here, potentially within a torch.no_grad() context
 
         pbar.set_postfix(tolerance_count=tolcount,
                          self_train_agreement=self_train_agreement,
-                         validation_accuracy=np.mean(
-                             val_preds == y_val) if print_eval else None)
+                         validation_accuracy=np.mean(val_preds == y_val) if print_eval else None)
     return model

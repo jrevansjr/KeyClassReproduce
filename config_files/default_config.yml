@@ -1,6 +1,7 @@
 activation: torch.nn.LeakyReLU()
 average: weighted
 base_encoder: paraphrase-mpnet-base-v2
+classification: standard
 criterion: torch.nn.CrossEntropyLoss(reduction='none')
 data_path: KeyClassReproduce/scripts/data/
 dataset: default

@@ -1,6 +1,7 @@
 activation: torch.nn.LeakyReLU()
 average: weighted
 base_encoder: paraphrase-mpnet-base-v2
+classification: multilabel
 criterion: torch.nn.BCEWithLogitsLoss(reduction='none')
 data_path: KeyClassReproduce/scripts/data/
 dataset: mimic

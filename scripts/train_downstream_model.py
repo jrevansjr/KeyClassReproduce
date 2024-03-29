@@ -36,8 +36,18 @@ import train_classifier
 import pickle
 from datetime import datetime
 
+def label_converter(args, inp):
+    return_val = []
+    for line in inp:
+        row = []
+        for c in line:
+            if c=='0' or c=='1':
+                row.append(int(c))
+        # return_val.append(row)
+        return_val.append(row[:args['n_classes']])
+    return np.array(return_val)
 
-def load_data(args):
+def load_data(args, classification='binary'):
     with open(
             join(args['preds_path'], f"{args['label_model']}_proba_preds.pkl"),
             'rb') as f:
@@ -68,7 +78,10 @@ def load_data(args):
                 join(args['data_path'], args['dataset'], f'train_labels.txt'),
                 'r') as f:
             y_train = f.readlines()
-        y_train = np.array([int(i.replace('\n', '')) for i in y_train])
+        if classification == 'standard':
+          y_train = np.array([int(i.replace('\n', '')) for i in y_train])
+        elif classification == 'mutilabel':
+          label_converter(args, y_train)
         training_labels_present = True
     else:
         y_train = None

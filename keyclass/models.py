@@ -194,6 +194,7 @@ class Encoder(torch.nn.Module):
         self.device = device
 
         self.to(device)
+        self.model = self.model.half()
 
     def encode(self,
                sentences: Union[str, List[str]],
