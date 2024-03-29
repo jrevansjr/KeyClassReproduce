@@ -181,14 +181,24 @@ def clean_text(sentences: Union[str, List[str]]):
     if isinstance(sentences, str):
         sentences = [sentences]
 
+    remove_phrases = [
+        'admission date',
+        'discharge date',
+        'date of birth'
+    ]
+    
+    remove_regex = '|'.join(map(re.escape, remove_phrases))
+
     for i, text in enumerate(sentences):
         text = text.lower()
         text = re.sub(r'<.*?>|[\.`\',;\?\*\[\]\(\)-:_]*|[0-9]*', '', text)
         text = re.sub(r'[\r\n]+', ' ', text)
         text = re.sub(r'[^\x00-\x7F]+', ' ', text)
+        text = re.sub(remove_regex, '', text)
+        text = text.strip()
         sentences[i] = text
 
-    return sentences
+    return sentences[0]
 
 
 def fetch_data(dataset='imdb', path='~/', split='train'):
