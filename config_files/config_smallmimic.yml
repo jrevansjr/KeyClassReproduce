@@ -36,9 +36,7 @@ self_train_patience: 8
 self_train_thresh: 1-2e-3
 self_train_weight_decay: 1e-4
 show_progress_bar: true
-target_00: infections, parasitic, bacterial, malaria, viral
-target_01: neoplasms, malignant, tumor, carcinoma, chemotherapy, benign, metastatic, cancer
-target_02: endocrine, nutritional, metabolic, thyroid, diabetes, autoimmune, vitamin deficiency
+target_00: infections, malaria, virus,bacilli, bacteriological, histological, tubercle, tuberculosis, tubercle bacilli
 topk: 20
 use_custom_encoder: false
 use_noise_aware_loss: true

@@ -55,7 +55,7 @@ def load_data(args, classification='standard'):
     if classification == 'standard':
         y_train_lm = np.argmax(proba_preds, axis=1)
     elif classification == 'multilabel':
-         y_train_lm = (proba_preds>0.9).astype(int).astype(float)
+         y_train_lm = (proba_preds>0.5).astype(int).astype(float)
     else:
         raise ValueError('Invalid classification type')
     

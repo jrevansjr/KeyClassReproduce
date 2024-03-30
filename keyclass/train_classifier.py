@@ -207,8 +207,8 @@ def self_train(model: torch.nn.Module,
                 target_preds = np.argmax(target_dist, axis=1)
                 self_train_agreement = np.mean(np.argmax(pred_proba, axis=1) == target_preds)
             elif classification == 'multilabel':
-                target_preds = (target_dist>0.9).astype(int)
-                self_train_agreement = np.mean((pred_proba>0.9).astype(int) == target_preds)
+                target_preds = (target_dist>0.5).astype(int)
+                self_train_agreement = np.mean((pred_proba>0.5).astype(int) == target_preds)
             else:
                 raise ValueError("Invalid classification type. Choose 'standard' or 'multilabel'.")
 
@@ -230,7 +230,6 @@ def self_train(model: torch.nn.Module,
                 loss = criterion(out, batch_q)
 
             scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)  # Unscale gradients before clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             scaler.step(optimizer)
             scaler.update()
@@ -238,10 +237,21 @@ def self_train(model: torch.nn.Module,
             del batch_x, batch_q  # Ensure tensors are deleted to free GPU memory
 
         if print_eval:
-            val_preds = model.predict(X_val)  # Ensure this is adapted for torch tensors and device handling
-            # Consider including validation logic here, potentially within a torch.no_grad() context
+          with torch.no_grad():
+            val_probs = model.predict(torch.from_numpy(X_val).to(device))
+
+            if classification == 'standard':
+              #val_preds = model.predict(X_val)  # Ensure this is adapted for torch tensors and device handling 
+              val_preds = np.argmax(val_probs.cpu().numpy(), axis=1) 
+              val_accuracy = np.mean(y_val == val_preds)
+            elif classification == 'multilabel':
+              val_preds = (val_probs.cpu().numpy() > 0.5).astype(int)
+              val_accuracy = np.mean(np.all(y_val == val_preds, axis=1))
+            else:
+              raise ValueError("Invalid classification type. Choose 'standard' or 'multilabel'.")
 
         pbar.set_postfix(tolerance_count=tolcount,
                          self_train_agreement=self_train_agreement,
-                         validation_accuracy=np.mean(val_preds == y_val) if print_eval else None)
+                         validation_accuracy=val_accuracy if print_eval else None)
+        
     return model

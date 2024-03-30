@@ -194,4 +194,4 @@ class CreateLabellingFunctions:
 
         proba_preds = label_model.predict_proba().values
 
-        return proba_preds
+        return proba_preds, label_model
