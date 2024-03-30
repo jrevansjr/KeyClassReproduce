@@ -143,14 +143,23 @@ def load_data(args, classification='standard'):
     sample_weights_masked = sample_weights[mask]
     proba_preds_masked = proba_preds[mask]
 
+    if classification == 'standard':
+        training_dist = np.unique(y_train_masked, return_counts=True)[1]/len(y_train_masked)
+        lm_dist = np.unique(y_train_lm_masked, return_counts=True)[1]/len(y_train_lm_masked)
+    elif classification == 'multilabel':
+        training_dist = np.sum(y_train_masked, axis = 0)/len(y_train_masked)
+        lm_dist = np.sum(y_train_lm_masked, axis = 0)/len(y_train_lm_masked)
+    else:
+        raise ValueError('Invalid classification type')
+
     print(f'Size of training data: {X_train_embed_masked.shape}')
     if training_labels_present:
         print(f'Size of training labels: {y_train_masked.shape}')
         print(
-            f'Training class distribution (ground truth): {np.unique(y_train_masked, return_counts=True)[1]/len(y_train_masked)}'
+            f'Training class distribution (ground truth): {training_dist}'
         )
     print(
-        f'Training class distribution (label model predictions): {np.unique(y_train_lm_masked, return_counts=True)[1]/len(y_train_lm_masked)}'
+        f'Training class distribution (label model predictions): {lm_dist}'
     )
 
     return X_train_embed_masked, y_train_lm_masked, y_train_masked, \
