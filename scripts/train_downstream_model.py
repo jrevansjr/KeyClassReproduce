@@ -108,6 +108,16 @@ def load_data(args, classification='standard'):
 
     # Print data statistics
     print('\n==== Data statistics ====')
+
+    if classification == 'standard':
+        training_dist = np.unique(y_train, return_counts=True)[1]/len(y_train)
+        lm_dist = np.unique(y_train_lm, return_counts=True)[1]/len(y_train_lm)
+    elif classification == 'multilabel':
+        training_dist = np.sum(y_train, axis = 0)/len(y_train)
+        lm_dist = np.sum(y_train_lm, axis = 0)/len(y_train_lm)
+    else:
+        raise ValueError('Invalid classification type')
+
     print(
         f'Size of training data: {X_train_embed.shape}, testing data: {X_test_embed.shape}'
     )
@@ -115,10 +125,10 @@ def load_data(args, classification='standard'):
     if training_labels_present:
         print(f'Size of training labels: {y_train.shape}')
         print(
-            f'Training class distribution (ground truth): {np.unique(y_train, return_counts=True)[1]/len(y_train)}'
+            f'Training class distribution (ground truth): {training_dist}'
         )
     print(
-        f'Training class distribution (label model predictions): {np.unique(y_train_lm, return_counts=True)[1]/len(y_train_lm)}'
+        f'Training class distribution (label model predictions): {lm_dist}'
     )
 
     print(
@@ -265,7 +275,8 @@ def train(args_cmd):
         batch_size=args['self_train_batch_size'],
         q_update_interval=args['q_update_interval'],
         self_train_thresh=eval(args['self_train_thresh']),
-        print_eval=True)
+        print_eval=True,
+        classification=args['classification'])
 
     current_time = datetime.now()
     model_name = f'end_model_self_trained_{current_time.strftime("%d %b %Y %H:%M:%S")}.pth'
