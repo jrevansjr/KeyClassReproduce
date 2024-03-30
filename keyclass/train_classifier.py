@@ -161,7 +161,8 @@ def self_train(model: torch.nn.Module,
                q_update_interval: int = 50,
                patience: int = 3,
                self_train_thresh: float = 1 - 2e-3,
-               print_eval: bool = True):
+               print_eval: bool = True,
+               classification: str = 'standard'):
     """Function to self train a model.
 
     Parameters
@@ -202,9 +203,14 @@ def self_train(model: torch.nn.Module,
             # Assuming model.predict_proba and get_q_soft are adapted for torch tensors and device handling
             pred_proba = model.predict_proba(X_train[inds], batch_size=batch_size, raw_text=True)
             target_dist = get_q_soft(pred_proba)
-            target_preds = np.argmax(target_dist, axis=1)
-
-            self_train_agreement = np.mean(np.argmax(pred_proba, axis=1) == target_preds)
+            if classification == 'standard':
+                target_preds = np.argmax(target_dist, axis=1)
+                self_train_agreement = np.mean(np.argmax(pred_proba, axis=1) == target_preds)
+            elif classification == 'multilabel':
+                target_preds = (target_dist>0.9).astype(int)
+                self_train_agreement = np.mean((pred_proba>0.9).astype(int) == target_preds)
+            else:
+                raise ValueError("Invalid classification type. Choose 'standard' or 'multilabel'.")
 
             if self_train_agreement > self_train_thresh:
                 tolcount += 1

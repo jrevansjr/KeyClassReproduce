@@ -42,17 +42,23 @@ def label_converter(args, inp):
         row = []
         for c in line:
             if c=='0' or c=='1':
-                row.append(int(c))
+                row.append(float(c))
         # return_val.append(row)
         return_val.append(row[:args['n_classes']])
     return np.array(return_val)
 
-def load_data(args, classification='binary'):
+def load_data(args, classification='standard'):
     with open(
             join(args['preds_path'], f"{args['label_model']}_proba_preds.pkl"),
             'rb') as f:
         proba_preds = pickle.load(f)
-    y_train_lm = np.argmax(proba_preds, axis=1)
+    if classification == 'standard':
+        y_train_lm = np.argmax(proba_preds, axis=1)
+    elif classification == 'multilabel':
+         y_train_lm = (proba_preds>0.9).astype(int).astype(float)
+    else:
+        raise ValueError('Invalid classification type')
+    
     sample_weights = np.max(proba_preds,
                             axis=1)  # Sample weights for noise aware loss
 
@@ -80,8 +86,11 @@ def load_data(args, classification='binary'):
             y_train = f.readlines()
         if classification == 'standard':
           y_train = np.array([int(i.replace('\n', '')) for i in y_train])
-        elif classification == 'mutilabel':
-          label_converter(args, y_train)
+        elif classification == 'multilabel':
+          y_train = label_converter(args, y_train)
+        else:
+          raise ValueError('Invalid classification type')
+          
         training_labels_present = True
     else:
         y_train = None
@@ -90,7 +99,12 @@ def load_data(args, classification='binary'):
     with open(join(args['data_path'], args['dataset'], f'test_labels.txt'),
               'r') as f:
         y_test = f.readlines()
-    y_test = np.array([int(i.replace('\n', '')) for i in y_test])
+    if classification == 'standard':
+      y_test = np.array([int(i.replace('\n', '')) for i in y_test])
+    elif classification == 'multilabel':
+      y_test = label_converter(args, y_test)
+    else:
+      raise ValueError('Invalid classification type')
 
     # Print data statistics
     print('\n==== Data statistics ====')
