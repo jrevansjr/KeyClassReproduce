@@ -36,24 +36,24 @@ self_train_patience: 8
 self_train_thresh: 1-2e-3
 self_train_weight_decay: 1e-4
 show_progress_bar: true
-target_00: infections, parasitic
-target_01: neoplasms
-target_02: endocrine, nutritional, metabolic
-target_03: blood, blood-forming organs
-target_04: mental disorders #Comment these out as you increase the number of classes
-target_05: nervous system
-target_06: sense organs
-target_07: circulatory system
-target_08: respiratory system
-target_09: digestive system
-target_10: genitourinary system
-target_11: pregnancy, childbirth complications
-target_12: skin, subcutaneous tissue
-target_13: musculoskeletal system, connective tissue
-target_14: congenital anomalies
-target_15: perinatal period conditions
-target_16: injury and poisoning
-target_17: external causes of injury
+target_00: infections, parasitic, bacterial, malaria, viral
+target_01: neoplasms, malignant, tumor, carcinoma, chemotherapy, benign, metastatic, cancer
+target_02: endocrine, nutritional, metabolic, thyroid, diabetes, autoimmune, vitamin deficiency
+target_03: blood, blood-forming organs, anemia, leukemia, hemophilia, thrombocytopenia, hemolytic
+target_04: mental disorders, disorder, depression, anxiety, schizophrenia, bipolar
+target_05: nervous system, parkinson, neuropathy
+target_06: sense organs, sensorineural, hearing, vision, macular degeneration, glaucoma
+target_07: circulatory system, coronary, artery, heart, hypertension, myocardial
+target_08: respiratory system, asthma, pneumonia, bronchitis, emphysema, lung, obstructive
+target_09: digestive system, hepatitis C, ulcerative colitis, gastroesophageal reflux
+target_10: genitourinary system, kidney, urinary, erectile
+target_11: pregnancy, childbirth, mother, mom, fetus, fetal, eclampsia
+target_12: skin, subcutaneous tissue, cellulitis, melanoma, acne, eczema
+target_13: musculoskeletal system, connective tissue, arthritis, osteoporosis, fibromyalgia
+target_14: congenital anomalies, down syndrome, cleft palate
+target_15: perinatal period conditions, neonatal jaundice, premature
+target_16: injury and poisoning, toxic, burn, concussion
+target_17: external causes of injury, fall, drowning, motor vehicle
 target_18: supplementary
 topk: 50
 use_custom_encoder: false
