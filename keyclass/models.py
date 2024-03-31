@@ -47,7 +47,8 @@ class CustomEncoder(torch.nn.Module):
     def __init__(self,
                  pretrained_model_name_or_path:
                  str = 'bionlp/bluebert_pubmed_mimic_uncased_L-12_H-768_A-12',
-                 device: str = "cuda"):
+                 device: str = "cuda",
+                 classification: str = "standard"):
         super(CustomEncoder, self).__init__()
         """Custom encoder class
 
@@ -86,6 +87,7 @@ class CustomEncoder(torch.nn.Module):
         # first set it back in training mode with model.train()
 
         self.device = device
+        self.classification = classification
 
         self.to(device)
 
@@ -175,7 +177,8 @@ class Encoder(torch.nn.Module):
 
     def __init__(self,
                  model_name: str = 'all-mpnet-base-v2',
-                 device: str = "cuda"):
+                 device: str = "cuda",
+                 classification: str = "standard"):
         """Encoder class returns an instance of a sentence transformer.
             https://www.sbert.net/docs/pretrained_models.html
             
@@ -192,6 +195,7 @@ class Encoder(torch.nn.Module):
         self.model = SentenceTransformer(model_name_or_path=model_name,
                                          device=device)
         self.device = device
+        self.classification = classification
 
         self.to(device)
 
@@ -327,7 +331,14 @@ class FeedForwardFlexible(torch.nn.Module):
         preds = self.predict_proba(x_test,
                                    batch_size=batch_size,
                                    raw_text=raw_text)
-        preds = np.argmax(preds, axis=1)
+        
+        if self.classification == 'standard':
+            pred = np.argmax(preds, axis=1)
+        elif self.classification == 'multilabel':
+            pred = np.where(preds > 0.5, 1, 0)
+        else:
+            raise ValueError(f'Invalid classification type {self.classification}')
+        
         return preds
 
     def predict_proba(self, x_test, batch_size=128, raw_text=True):

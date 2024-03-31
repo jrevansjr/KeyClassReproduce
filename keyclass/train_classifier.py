@@ -184,7 +184,9 @@ def self_train(model: torch.nn.Module,
     model.to(device)
 
     criterion = torch.nn.KLDivLoss(reduction='batchmean')
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(),
+                                 lr=lr,
+                                 weight_decay=weight_decay)
     scaler = GradScaler()  # Initialize GradScaler for AMP
 
     tolcount = 0
@@ -201,7 +203,9 @@ def self_train(model: torch.nn.Module,
 
         with torch.no_grad():
             # Assuming model.predict_proba and get_q_soft are adapted for torch tensors and device handling
-            pred_proba = model.predict_proba(X_train[inds], batch_size=batch_size, raw_text=True)
+            pred_proba = model.predict_proba(X_train[inds],
+                                             batch_size=batch_size,
+                                             raw_text=True)
             target_dist = get_q_soft(pred_proba)
             if classification == 'standard':
                 target_preds = np.argmax(target_dist, axis=1)
@@ -238,17 +242,8 @@ def self_train(model: torch.nn.Module,
 
         if print_eval:
           with torch.no_grad():
-            val_probs = model.predict(torch.from_numpy(X_val).to(device))
-
-            if classification == 'standard':
-              #val_preds = model.predict(X_val)  # Ensure this is adapted for torch tensors and device handling 
-              val_preds = np.argmax(val_probs.cpu().numpy(), axis=1) 
-              val_accuracy = np.mean(y_val == val_preds)
-            elif classification == 'multilabel':
-              val_preds = (val_probs.cpu().numpy() > 0.5).astype(int)
-              val_accuracy = np.mean(np.all(y_val == val_preds, axis=1))
-            else:
-              raise ValueError("Invalid classification type. Choose 'standard' or 'multilabel'.")
+            val_preds = model.predict(torch.from_numpy(X_val).to(device))
+            val_accuracy = np.mean(val_preds == y_val)
 
         pbar.set_postfix(tolerance_count=tolcount,
                          self_train_agreement=self_train_agreement,
