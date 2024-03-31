@@ -12,12 +12,10 @@
 1. [Overview of Methodology](#methodology) 
 2. [KeyClass Outperforms Advanced Weakly Supervised Models](#results) 
 3. [Datasets](#datasets)
-4. [Tutorial](#tutorial)
-5. [Installation](#installation)
-6. [Reproducing Results in Classifying Unstructured Clinical Notes via Automatic Weak Supervision](#reproduce)
-7. [Citation](#citation)
-8. [Contributing](#contrib)
-9. [License](#license)
+4. [Installation](#installation)
+5. [Citation](#citation)
+6. [Contributing](#contrib)
+7. [License](#license)
 
 <a id="methodology"></a>
 ## Overview of Methodology 
@@ -43,47 +41,12 @@ LOTClass, and BERT are reported from [(Meng et al., 2020)](https://arxiv.org/abs
 <a id="datasets"></a>
 ## Datasets
 
-To download the datasets used in the paper, run this [script](https://github.com/autonlab/KeyClass/blob/main/scripts/get_data.sh)
-
-<a id="tutorial"></a>
-## Tutorial
-To familiarize yourself with `KeyClass`, please go through the following [tutorial](https://github.com/autonlab/KeyClass/blob/main/tutorials/Tutorial%20on%20IMDB.ipynb) which trains a text classifier from scratch on the DBpedia dataset.
+The datasets for this model are private, please see original KeyClass repository for baseline models. In addition, for MIMIC-III dataset, please visit Physionet.org.
 
 <a id="installation"></a>
 ## Installation
 
-All models were built and trained using PyTorch 1.8.1 using Python 3.8.1. Experiments were carried out on a computing cluster, with a typical machine having 40 Intel Xeon Silver 4210 CPUs, 187 GB of RAM, and 4 NVIDIA RTX2080 GPUs.
-
-Setup the environment with the following steps: 
-
-``` bash
-$ conda create -n keyclass python=3.8
-$ conda activate keyclass
-$ conda install -c pytorch pytorch=1.10.0 cudatoolkit=10.2
-$ conda install -c conda-forge snorkel=0.9.8
-$ conda install -c huggingface tokenizers=0.10.1
-$ conda install -c huggingface transformers=4.11.3
-$ conda install -c conda-forge sentence-transformers=2.0.0
-$ conda install jupyter notebook
-```
-Alternatively, we have also provided the conda .yaml file, so the environment can be recreated using the following steps:
-```
-$ conda env create -f scripts/environment.yaml
-$ conda activate keyclass
-```
-
-<a id="reproduce"></a>
-## Reproducing Results in [Classifying Unstructured Clinical Notes via Automatic Weak Supervision](https://arxiv.org/pdf/2206.12088.pdf)
-To reproduce the results in our paper, run the following commands. 
-```
-$ cd scripts
-$ bash get_data.sh
-$ python run_all.py --config../config_files/config_imdb.yml
-$ python run_all.py --config../config_files/config_agnews.yml
-$ python run_all.py --config../config_files/config_dbpedia.yml
-$ python run_all.py --config../config_files/config_amazon.yml
-```
-Additionally, we release our [pretrained models](https://github.com/autonlab/KeyClass/releases/tag/v1.0). Please see the tutorial notebook above on evaluating trained models.
+All models were built and trained using Google Colab.
 
 <a id="citation"></a>
 ## Citation
