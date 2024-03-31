@@ -12,12 +12,10 @@
 1. [Overview of Methodology](#methodology) 
 2. [KeyClass Outperforms Advanced Weakly Supervised Models](#results) 
 3. [Datasets](#datasets)
-4. [Tutorial](#tutorial)
-5. [Installation](#installation)
-6. [Reproducing Results in Classifying Unstructured Clinical Notes via Automatic Weak Supervision](#reproduce)
-7. [Citation](#citation)
-8. [Contributing](#contrib)
-9. [License](#license)
+4. [Installation](#installation)
+5. [Citation](#citation)
+6. [Contributing](#contrib)
+7. [License](#license)
 
 <a id="methodology"></a>
 ## Overview of Methodology 
