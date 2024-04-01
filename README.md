@@ -12,7 +12,7 @@
 1. [Overview of Methodology](#methodology) 
 2. [KeyClass Outperforms Advanced Weakly Supervised Models](#results) 
 3. [Datasets](#datasets)
-4. [Installation](#installation)
+4. [Instructions](#instructions)
 5. [Citation](#citation)
 6. [Contributing](#contrib)
 7. [License](#license)
@@ -43,10 +43,18 @@ LOTClass, and BERT are reported from [(Meng et al., 2020)](https://arxiv.org/abs
 
 The datasets for this model are private, please see original KeyClass repository for baseline models. In addition, for MIMIC-III dataset, please visit Physionet.org.
 
-<a id="installation"></a>
+<a id="instructions"></a>
 ## Installation
 
-All models were built and trained using Google Colab.
+All models were built and trained using Google Colab. The notebook is designed to run end to end. It is recommended to put your hugging face token in the colab secrets book if you want to pull a fresh model from the website. However, if this is left blank, the program will just retrieve previous models downloaded from the google drive. After collecting the data and n-grams from the CDC catagory definitions, the three step weak supervision process starts in section 3.
+
+Via the variable config_file_path at the top of section 3.2.1, is how the dataset and model are selected. The default configuration file is a slimmed down version of the imdb dataset to ensure that the notebook will run under 8 minutes in Colab on a CPU.
+
+Important Scripts:
+1. keyclass/config_files - Configuration files, information pertaining to the model architecture, training hyperparameters, and definitions mined from the CDC.
+2. keyclass/create_lfs - get_vocabulary function gathers the n-grams from the training corpus and the assign_categories_to_keywords function assigns these to labeling functions based on their embedding similarity to the categories. The remaining functions leverage the snorkel library to assign probabilistic labels to each of the files.
+3. keyclass/models - contains the encoder, downstream model torch abstractions.
+4. keyclass/train_classifiers - contain the training loops for executing the finetuning of the base hugging face model.
 
 <a id="citation"></a>
 ## Citation
