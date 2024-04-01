@@ -7,7 +7,7 @@ data_path: KeyClassReproduce/scripts/data/
 dataset: default
 device: cuda
 end_model_batch_size: 128
-end_model_epochs: 20
+end_model_epochs: 1
 end_model_lr: 1e-4
 end_model_patience: 3
 end_model_weight_decay: 1e-4
@@ -18,7 +18,7 @@ h_sizes:
 - 2
 label_model: data_programming
 label_model_lr: 0.01
-label_model_n_epochs: 100
+label_model_n_epochs: 1
 max_num: 7000
 min_df: 0.001
 model_path: KeyClassReproduce/models/default/
