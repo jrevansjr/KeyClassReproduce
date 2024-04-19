@@ -256,8 +256,8 @@ def train(args_cmd):
     
     #training_metrics_with_lm = utils.compute_metrics(y_preds=np.argmax(
     #    end_model_preds_train, axis=1),
-                                                     y_true=y_train_lm_masked,
-                                                     average=args['average'])
+    #                                                 y_true=y_train_lm_masked,
+    #                                                 average=args['average'])
     #utils.log(metrics=training_metrics_with_lm,
     #          filename='end_model_with_label_model',
     #          results_dir=args['results_path'],
