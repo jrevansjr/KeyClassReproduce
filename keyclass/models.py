@@ -307,6 +307,7 @@ class FeedForwardFlexible(torch.nn.Module):
         self.encoder_model = encoder_model
         self.device = device
         self.layers = torch.nn.ModuleList()
+        self.classification = classification
         for k in range(len(h_sizes) - 1):
             self.layers.append(torch.nn.Linear(h_sizes[k], h_sizes[k + 1]))
             self.layers.append(activation)
