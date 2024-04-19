@@ -63,7 +63,7 @@ def load_data(args, classification='standard'):
         raise ValueError('Invalid classification type')
     
     sample_weights = np.max(proba_preds,
-                        s    axis=1)  # Sample weights for noise aware loss
+                            axis=1)  # Sample weights for noise aware loss
 
     # Keep only very confident predictions
     mask = utils.get_balanced_data_mask(proba_preds,
