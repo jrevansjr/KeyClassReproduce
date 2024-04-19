@@ -393,7 +393,7 @@ def test(args_cmd, end_model_path, end_model_self_trained_path):
     # Print statistics
     testing_metrics = utils.compute_metrics_bootstrap(
         #y_preds=np.argmax(end_model_preds_test, axis=1),
-        y_preds
+        y_preds=end_model_preds_test,
         y_true=y_test,
         average=args['average'],
         n_bootstrap=args['n_bootstrap'],
