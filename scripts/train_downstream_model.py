@@ -252,7 +252,7 @@ def train(args_cmd):
     if args['classification'] == 'standard':
         y_preds=np.argmax(end_model_preds_train, axis=1),
     else:
-        y_preds=end_model_preds_test
+        y_preds=end_model_preds_train
 
     # Print statistics
     if training_labels_present:
@@ -323,14 +323,19 @@ def train(args_cmd):
             'wb') as f:
         pickle.dump(end_model_preds_test, f)
 
+    if args['classification'] == 'standard':
+        y_preds=np.argmax(end_model_preds_test, axis=1),
+    else:
+        y_preds=end_model_preds_test
+
     # Print statistics
     testing_metrics = utils.compute_metrics_bootstrap(
-        #y_preds=np.argmax(end_model_preds_test, axis=1),
-        y_preds=end_model_preds_test,
+        y_preds=y_preds,
         y_true=y_test,
         average=args['average'],
         n_bootstrap=args['n_bootstrap'],
-        n_jobs=args['n_jobs'])
+        n_jobs=args['n_jobs'],
+        classification=args['classification'])
     utils.log(metrics=testing_metrics,
               filename='end_model_with_ground_truth_self_trained',
               results_dir=args['results_path'],
