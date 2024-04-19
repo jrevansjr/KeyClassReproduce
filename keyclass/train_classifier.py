@@ -129,7 +129,8 @@ def train(model: torch.nn.Module,
             scaler.step(optimizer)
             scaler.update()
 
-            running_loss += loss.item() * batch_x.size(0) / N  # Update running loss correctly with unscaled loss
+            running_loss = running_loss + (loss.cpu().detach().numpy() *
+                                           batch_size / N)
 
         scheduler.step()
 
@@ -210,19 +211,30 @@ def self_train(model: torch.nn.Module,
             if classification == 'standard':
                 target_preds = np.argmax(target_dist, axis=1)
                 self_train_agreement = np.mean(np.argmax(pred_proba, axis=1) == target_preds)
+
+                if self_train_agreement > self_train_thresh:
+                    tolcount += 1
+                else:
+                    tolcount = 0
+
+                if tolcount >= patience:
+                    break
+
             elif classification == 'multilabel':
                 target_preds = (target_dist>0.5).astype(int)
                 self_train_agreement = np.mean((pred_proba>0.5).astype(int) == target_preds)
+
+                if self_train_agreement > self_train_thresh:
+                    tolcount += 1
+                else:
+                    tolcount = 0
+
+                if tolcount >= patience:
+                    break
+            elif classification == 'binary':
+                target_preds = target_dist
             else:
                 raise ValueError("Invalid classification type. Choose 'standard' or 'multilabel'.")
-
-            if self_train_agreement > self_train_thresh:
-                tolcount += 1
-            else:
-                tolcount = 0
-
-            if tolcount >= patience:
-                break
 
         for i in range(0, batch_size * q_update_interval, batch_size):
             batch_x = X_train[inds][i:i + batch_size]  # Adapt this for device as needed
@@ -246,7 +258,6 @@ def self_train(model: torch.nn.Module,
             val_accuracy = np.mean(val_preds == y_val)
 
         pbar.set_postfix(tolerance_count=tolcount,
-                         self_train_agreement=self_train_agreement,
                          validation_accuracy=val_accuracy if print_eval else None)
         
     return model

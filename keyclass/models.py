@@ -320,10 +320,10 @@ class FeedForwardFlexible(torch.nn.Module):
         for layer in self.layers:
             x = layer(x)
 
-        if mode == 'inference':
-            x = torch.nn.Softmax(dim=-1)(x)
-        elif mode == 'self_train':
-            x = torch.nn.LogSoftmax(dim=-1)(x)
+        #if mode == 'inference':
+        #    x = torch.nn.Softmax(dim=-1)(x)
+        #elif mode == 'self_train':
+        #    x = torch.nn.LogSoftmax(dim=-1)(x)
 
         return x
 
@@ -333,9 +333,11 @@ class FeedForwardFlexible(torch.nn.Module):
                                    raw_text=raw_text)
         
         if self.classification == 'standard':
-            pred = np.argmax(preds, axis=1)
+            preds = np.argmax(preds, axis=1)
         elif self.classification == 'multilabel':
-            pred = np.where(preds > 0.5, 1, 0)
+            preds = np.where(preds > 0.5, 1, 0)
+        elif self.classification == 'binary':
+            pass
         else:
             raise ValueError(f'Invalid classification type {self.classification}')
         

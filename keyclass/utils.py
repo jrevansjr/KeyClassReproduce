@@ -55,12 +55,15 @@ def log(metrics: Union[List, Dict], filename: str, results_dir: str,
         results['Accuracy'] = metrics[0]
         results['Precision'] = metrics[1]
         results['Recall'] = metrics[2]
+        results['F1'] = metrics[3]
     elif isinstance(metrics, np.ndarray):
         assert len(metrics) == 3, "Metrics must be of length 3!"
         results = dict()
         results['Accuracy (mean, std)'] = metrics[0].tolist()
         results['Precision (mean, std)'] = metrics[1].tolist()
         results['Recall (mean, std)'] = metrics[2].tolist()
+        results['F1 (mean, std)'] = metrics[3].tolist()
+
     else:
         results = metrics
 
@@ -92,10 +95,18 @@ def compute_metrics(y_preds: np.array,
             the scores for each class are returned. Otherwise, this determines the 
             type of averaging performed on the data.
     """
+    accuracy = np.mean(y_preds == y_true),
+    precision = precision_score(y_true, y_preds, average=average),
+    recall = recall_score(y_true, y_preds, average=average)
+    if (precision + recall) != 0:
+        f1 = 2 * recall * precision / (recall + precision)   
+
+
     return [
-        np.mean(y_preds == y_true),
-        precision_score(y_true, y_preds, average=average),
-        recall_score(y_true, y_preds, average=average)
+        accuracy,
+        precision,
+        recall,
+        f1
     ]
 
 
@@ -181,11 +192,11 @@ def clean_text(sentences: Union[str, List[str]]):
     if isinstance(sentences, str):
         sentences = [sentences]
 
-    remove_phrases = [
-        'admission date',
-        'discharge date',
-        'date of birth'
-    ]
+    #remove_phrases = [
+    #    'admission date',
+    #    'discharge date',
+    #    'date of birth'
+    #]
     
     remove_regex = '|'.join(map(re.escape, remove_phrases))
 
@@ -194,8 +205,8 @@ def clean_text(sentences: Union[str, List[str]]):
         text = re.sub(r'<.*?>|[\.`\',;\?\*\[\]\(\)-:_]*|[0-9]*', '', text)
         text = re.sub(r'[\r\n]+', ' ', text)
         text = re.sub(r'[^\x00-\x7F]+', ' ', text)
-        text = re.sub(remove_regex, '', text)
-        text = text.strip()
+        #text = re.sub(remove_regex, '', text)
+        #text = text.strip()
         sentences[i] = text
 
     return sentences[0]
@@ -227,8 +238,8 @@ def fetch_data(dataset='imdb', path='~/', split='train'):
 
     text = open(f'{join(path, dataset, split)}.txt').readlines()
 
-    if 'mimic' in dataset:
-        text = [clean_text(line) for line in text]
+    #if 'mimic' in dataset:
+    #    text = [clean_text(line) for line in text]
 
     return text
 

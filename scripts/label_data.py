@@ -35,6 +35,16 @@ import torch
 import os
 from os.path import join, exists
 
+def label_converter(args, inp):
+    return_val = []
+    for line in inp:
+        row = []
+        for c in line:
+            if c=='0' or c=='1':
+                row.append(int(c))
+
+        return_val.append(row[args['n_class_being_tested']])
+    return np.array(return_val)
 
 def run(args_cmd):
 
@@ -78,7 +88,7 @@ def run(args_cmd):
         base_encoder=args['base_encoder'],
         device=torch.device(args['device']),
         label_model=args['label_model'])
-    proba_preds = labeler.get_labels(
+    proba_preds, _ = labeler.get_labels(
         text_corpus=train_text,
         label_names=label_names,
         min_df=args['min_df'],
@@ -90,7 +100,7 @@ def run(args_cmd):
         verbose=True,
         n_classes=args['n_classes'])
 
-    y_train_pred = np.argmax(proba_preds, axis=1)
+    y_train_pred = proba_preds #np.argmax(proba_preds, axis=1)
 
     # Save the predictions
     if not os.path.exists(args['preds_path']): os.makedirs(args['preds_path'])
