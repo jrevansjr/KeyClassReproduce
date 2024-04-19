@@ -100,7 +100,7 @@ def run(args_cmd):
         verbose=True,
         n_classes=args['n_classes'])
 
-    if classification == args['standard']:
+    if args['classification'] == 'standard':
         y_train_pred = np.argmax(proba_preds, axis=1)
     else:
         y_train_pred = proba_preds

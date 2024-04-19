@@ -351,13 +351,17 @@ def test(args_cmd, end_model_path, end_model_self_trained_path):
                                                batch_size=512,
                                                raw_text=False)
 
+    if args['classification'] == 'standard':
+        y_preds=np.argmax(end_model_preds_train, axis=1),
+    else:
+        y_preds=end_model_preds_train
+
     # Print statistics
     if training_labels_present:
         training_metrics_with_gt = utils.compute_metrics(
-            #y_preds=np.argmax(end_model_preds_train, axis=1),
-            y_preds = end_model_preds_train,
-            y_true=y_train_masked,
-            average=args['average'])
+            y_preds = y_preds,
+            y_true = y_train_masked,
+            average = args['average'])
         print('training_metrics_with_gt', training_metrics_with_gt)
 
     training_metrics_with_lm = utils.compute_metrics(y_preds=np.argmax(
@@ -366,9 +370,13 @@ def test(args_cmd, end_model_path, end_model_self_trained_path):
                                                      average=args['average'])
     print('training_metrics_with_lm', training_metrics_with_lm)
 
+    if args['classification'] == 'standard':
+        y_preds=np.argmax(end_model_preds_test, axis=1),
+    else:
+        y_preds=end_model_preds_test
+
     testing_metrics = utils.compute_metrics_bootstrap(
-        #y_preds=np.argmax(end_model_preds_test, axis=1),
-        y_preds=end_model_preds_test,
+        y_preds=y_preds,
         y_true=y_test,
         average=args['average'],
         n_bootstrap=args['n_bootstrap'],
@@ -390,10 +398,14 @@ def test(args_cmd, end_model_path, end_model_self_trained_path):
     end_model_preds_test = model.predict_proba(
         X_test_text, batch_size=args['self_train_batch_size'], raw_text=True)
 
+    if args['classification'] == 'standard':
+        y_preds=np.argmax(end_model_preds_test, axis=1),
+    else:
+        y_preds=end_model_preds_test
+
     # Print statistics
     testing_metrics = utils.compute_metrics_bootstrap(
-        #y_preds=np.argmax(end_model_preds_test, axis=1),
-        y_preds=end_model_preds_test,
+        y_preds=y_preds,
         y_true=y_test,
         average=args['average'],
         n_bootstrap=args['n_bootstrap'],
