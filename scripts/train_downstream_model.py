@@ -212,7 +212,8 @@ def train(args_cmd):
         encoder_model=encoder,
         h_sizes=args['h_sizes'],
         activation=eval(args['activation']),
-        device=torch.device(args['device']))
+        device=torch.device(args['device']),
+        classification=args['classification'],)
     print('\n===== Training the downstream classifier =====\n')
     model = train_classifier.train(model=classifier,
                                    device=torch.device(args['device']),
