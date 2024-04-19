@@ -100,7 +100,10 @@ def run(args_cmd):
         verbose=True,
         n_classes=args['n_classes'])
 
-    y_train_pred = proba_preds #np.argmax(proba_preds, axis=1)
+    if classification == args['standard']:
+        y_train_pred = np.argmax(proba_preds, axis=1)
+    else:
+        y_train_pred = proba_preds
 
     # Save the predictions
     if not os.path.exists(args['preds_path']): os.makedirs(args['preds_path'])
@@ -118,7 +121,7 @@ def run(args_cmd):
 
         # Log the metrics
         training_metrics_with_gt = utils.compute_metrics(
-            y_preds=y_train_pred, y_true=y_train, average=args['average'])
+            y_preds=y_train_pred, y_true=y_train, average=args['average'], classification=args['classification'])
         utils.log(metrics=training_metrics_with_gt,
                   filename='label_model_with_ground_truth',
                   results_dir=args['results_path'],
