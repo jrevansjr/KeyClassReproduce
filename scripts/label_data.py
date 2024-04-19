@@ -43,7 +43,11 @@ def label_converter(args, inp):
             if c=='0' or c=='1':
                 row.append(int(c))
 
-        return_val.append(row[args['n_class_being_tested']])
+        if args['classification'] == 'multilabel':
+            return_val.append(row[:args['n_classes']])
+        else:
+            return_val.append(row[args['n_class_being_tested']])
+        
     return np.array(return_val)
 
 def run(args_cmd):

@@ -42,9 +42,13 @@ def label_converter(args, inp):
         row = []
         for c in line:
             if c=='0' or c=='1':
-                row.append(float(c))
-        # return_val.append(row)
-        return_val.append(row[:args['n_classes']])
+                row.append(int(c))
+
+        if args['classification'] == 'multilabel':
+            return_val.append(row[:args['n_classes']])
+        else:
+            return_val.append(row[args['n_class_being_tested']])
+        
     return np.array(return_val)
 
 def load_data(args, classification='standard'):
@@ -108,6 +112,8 @@ def load_data(args, classification='standard'):
     if classification == 'standard':
       y_test = np.array([int(i.replace('\n', '')) for i in y_test])
     elif classification == 'multilabel':
+      y_test = label_converter(args, y_test)
+    elif classification == 'binary':
       y_test = label_converter(args, y_test)
     else:
       raise ValueError('Invalid classification type')
@@ -243,10 +249,15 @@ def train(args_cmd):
     with open(join(args['preds_path'], 'end_model_preds_test.pkl'), 'wb') as f:
         pickle.dump(end_model_preds_test, f)
 
+    if args['classification'] == 'standard':
+        y_preds=np.argmax(end_model_preds_train, axis=1),
+    else:
+        y_preds=end_model_preds_test
+
     # Print statistics
     if training_labels_present:
         training_metrics_with_gt = utils.compute_metrics(
-            y_preds=np.argmax(end_model_preds_train, axis=1),
+            y_preds=y_preds,
             y_true=y_train_masked,
             average=args['average'])
         utils.log(metrics=training_metrics_with_gt,
@@ -254,18 +265,13 @@ def train(args_cmd):
                   results_dir=args['results_path'],
                   split='train')
     
-    #training_metrics_with_lm = utils.compute_metrics(y_preds=np.argmax(
-    #    end_model_preds_train, axis=1),
-    #                                                 y_true=y_train_lm_masked,
-    #                                                 average=args['average'])
-    #utils.log(metrics=training_metrics_with_lm,
-    #          filename='end_model_with_label_model',
-    #          results_dir=args['results_path'],
-    #          split='train')
+    if args['classification'] == 'standard':
+        y_preds=np.argmax(end_model_preds_test, axis=1),
+    else:
+        y_preds=end_model_preds_test
 
     testing_metrics = utils.compute_metrics_bootstrap(
-        #y_preds=np.argmax(end_model_preds_test, axis=1),
-        y_preds = end_model_preds_test,
+        y_preds = y_preds,
         y_true=y_test,
         average=args['average'],
         n_bootstrap=args['n_bootstrap'],
