@@ -61,7 +61,10 @@ def run(args_cmd):
         with open(join(args['data_path'], args['dataset'], 'train_labels.txt'),
                   'r') as f:
             y_train = f.readlines()
-        y_train = np.array([int(i.replace('\n', '')) for i in y_train])
+        if args['classification'] == 'standard':
+            y_train = np.array([int(i.replace('\n', '')) for i in y_train])
+        else:
+            y_train = label_converter(args, y_train)
         training_labels_present = True
     else:
         y_train = None
@@ -82,6 +85,10 @@ def run(args_cmd):
     label_names = []
     for a in args:
         if 'target' in a: label_names.append(args[a])
+
+    if args['classification'] == 'binary':
+        print(label_names)
+        label_names = [label_names[args['n_class_being_tested']]]
 
     # Creating labeling functions
     labeler = create_lfs.CreateLabellingFunctions(
