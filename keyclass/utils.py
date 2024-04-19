@@ -132,7 +132,8 @@ def compute_metrics_bootstrap(y_preds: np.array,
                               y_true: np.array,
                               average: str = 'weighted',
                               n_bootstrap: int = 100,
-                              n_jobs: int = 10):
+                              n_jobs: int = 10,
+                              classification: str = 'standard'):
     """Compute bootstrapped confidence intervals (CIs) around metrics of interest. 
 
         Parameters
@@ -156,7 +157,7 @@ def compute_metrics_bootstrap(y_preds: np.array,
     """
     output_ =  joblib.Parallel(n_jobs=n_jobs, verbose=1)(
                                 joblib.delayed(compute_metrics)
-                                    (y_preds[boostrap_inds], y_true[boostrap_inds]) \
+                                    (y_preds[boostrap_inds], y_true[boostrap_inds], 'weighted', classification) \
                                     for boostrap_inds in [\
                                     np.random.choice(a=len(y_true), size=len(y_true)) for k in range(n_bootstrap)])
     output_ = np.array(output_)
