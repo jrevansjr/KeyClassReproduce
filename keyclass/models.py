@@ -289,7 +289,8 @@ class FeedForwardFlexible(torch.nn.Module):
                  encoder_model: torch.nn.Module,
                  h_sizes: Iterable[int] = [768, 256, 64, 2],
                  activation: torch.nn.Module = torch.nn.LeakyReLU(),
-                 device: str = "cuda"):
+                 device: str = "cuda",
+                 classification: str = "standard"):
         super(FeedForwardFlexible, self).__init__()
         """
         Flexible feed forward network over a base encoder. 
