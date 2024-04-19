@@ -27,7 +27,7 @@ import re
 from typing import List, Dict, Tuple, Iterable, Type, Union, Callable, Optional
 import numpy as np
 import joblib
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score, roc_auc_score, roc_curve, precision_recall_curve, accuracy_score, precision_recall_fscore_support
 from datetime import datetime
 import torch
 from yaml import load, dump
@@ -50,14 +50,14 @@ def log(metrics: Union[List, Dict], filename: str, results_dir: str,
             Train/test split
     """
     if isinstance(metrics, list):
-        assert len(metrics) == 3, "Metrics must be of length 3!"
+        assert len(metrics) == 4, "Metrics must be of length 3!"
         results = dict()
         results['Accuracy'] = metrics[0]
         results['Precision'] = metrics[1]
         results['Recall'] = metrics[2]
         results['F1'] = metrics[3]
     elif isinstance(metrics, np.ndarray):
-        assert len(metrics) == 3, "Metrics must be of length 3!"
+        assert len(metrics) == 4, "Metrics must be of length 3!"
         results = dict()
         results['Accuracy (mean, std)'] = metrics[0].tolist()
         results['Precision (mean, std)'] = metrics[1].tolist()
@@ -79,7 +79,8 @@ def log(metrics: Union[List, Dict], filename: str, results_dir: str,
 
 def compute_metrics(y_preds: np.array,
                     y_true: np.array,
-                    average: str = 'weighted'):
+                    average: str = 'weighted',
+                    classification: str = 'standard'):
     """Compute accuracy, recall and precision
 
         Parameters
@@ -95,18 +96,35 @@ def compute_metrics(y_preds: np.array,
             the scores for each class are returned. Otherwise, this determines the 
             type of averaging performed on the data.
     """
-    accuracy = np.mean(y_preds == y_true),
-    precision = precision_score(y_true, y_preds, average=average),
-    recall = recall_score(y_true, y_preds, average=average)
-    if (precision + recall) != 0:
-        f1 = 2 * recall * precision / (recall + precision)   
 
+    if classification == 'standard':
+        accuracy = np.mean(y_preds == y_true)
+        precision = precision_score(y_true, y_preds, average=average)
+        recall = recall_score(y_true, y_preds, average=average)
+        f1_scores = "Not Applicable"
+    else:
+        y_preds = np.asarray(y_preds).reshape((1,-1)).squeeze()
+        y_preds_default = (y_preds>0.5).astype(int).tolist()
+        y_preds = y_preds.tolist()
+        y_true = np.asarray(y_true).reshape((1,-1)).squeeze()
+        y_true = y_true.tolist()
+        auc_score = roc_auc_score(y_true,y_preds)
+        precision0, recall0, threshold = precision_recall_curve(y_true, y_preds)
+        f1 = np.where((recall0 + precision0) > 0,
+                2 * (precision0 * recall0) / (recall0 + precision0),
+                0)
+        best_id = np.argmax(f1)
+        theta = threshold[best_id]
+        f1_scores = f1[best_id]
+        precision = precision0[best_id]
+        recall = recall0[best_id]
+        accuracy = accuracy_score(y_true, (y_preds>theta).astype(int))
 
     return [
         accuracy,
         precision,
         recall,
-        f1
+        f1_scores
     ]
 
 
