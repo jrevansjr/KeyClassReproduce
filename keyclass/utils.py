@@ -103,22 +103,28 @@ def compute_metrics(y_preds: np.array,
         recall = recall_score(y_true, y_preds, average=average)
         f1_scores = "Not Applicable"
     else:
-        y_preds = np.asarray(y_preds).reshape((1,-1)).squeeze()
-        y_preds_default = (y_preds>0.5).astype(int).tolist()
-        y_preds = y_preds.tolist()
-        y_true = np.asarray(y_true).reshape((1,-1)).squeeze()
-        y_true = y_true.tolist()
-        auc_score = roc_auc_score(y_true,y_preds)
-        precision0, recall0, threshold = precision_recall_curve(y_true, y_preds)
-        f1 = np.where((recall0 + precision0) > 0,
-                2 * (precision0 * recall0) / (recall0 + precision0),
-                0)
-        best_id = np.argmax(f1)
-        theta = threshold[best_id]
-        f1_scores = f1[best_id]
-        precision = precision0[best_id]
-        recall = recall0[best_id]
-        accuracy = accuracy_score(y_true, (y_preds>theta).astype(int))
+        y_preds = (y_preds>0.5).astype(int).tolist()
+        precision = precision_score(y_true, y_preds, average=average)
+        recall = recall_score(y_true, y_preds, average=average)
+        f1_scores = np.where((recall + precision) > 0,
+                2 * (precision * recall) / (recall + precision),
+                0)      
+        #y_preds = np.asarray(y_preds).reshape((1,-1)).squeeze()
+        #y_preds_default = (y_preds>0.5).astype(int).tolist()
+        #y_preds = y_preds.tolist()
+        #y_true = np.asarray(y_true).reshape((1,-1)).squeeze()
+        #y_true = y_true.tolist()
+        #auc_score = roc_auc_score(y_true,y_preds)
+        #precision0, recall0, threshold = precision_recall_curve(y_true, y_preds)
+        #f1 = np.where((recall0 + precision0) > 0,
+        #        2 * (precision0 * recall0) / (recall0 + precision0),
+        #        0)
+        #best_id = np.argmax(f1)
+        #theta = threshold[best_id]
+        #f1_scores = f1[best_id]
+        #precision = precision0[best_id]
+        #recall = recall0[best_id]
+        #accuracy = accuracy_score(y_true, (y_preds>theta).astype(int))
 
     return [
         accuracy,
