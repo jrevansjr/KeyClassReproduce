@@ -52,6 +52,8 @@ def label_converter(args, inp):
     return np.array(return_val)
 
 def load_data(args, classification='standard'):
+    classification = args['classification']
+    
     with open(
             join(args['preds_path'], f"{args['label_model']}_proba_preds.pkl"),
             'rb') as f:
