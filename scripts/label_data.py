@@ -53,6 +53,7 @@ def label_converter(args, inp):
 def run(args_cmd):
 
     args = utils.Parser(config_file_path=args_cmd.config).parse()
+    args['n_class_being_tested'] = args_cmd.n_class
     print(args)
 
     # Load training data

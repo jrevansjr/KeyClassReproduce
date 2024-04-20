@@ -34,6 +34,7 @@ import pickle
 
 def run(args_cmd):
     args = utils.Parser(config_file_path=args_cmd.config).parse()
+    args['n_class_being_tested'] = args_cmd.n_class
 
     if args['use_custom_encoder']:
         model = models.CustomEncoder(
