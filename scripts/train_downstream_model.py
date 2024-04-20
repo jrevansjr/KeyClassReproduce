@@ -188,8 +188,8 @@ def load_data(args, classification='standard'):
 
 
 def train(args_cmd):
-
     args = utils.Parser(config_file_path=args_cmd.config).parse()
+    args['n_class_being_tested'] = args_cmd.n_class
 
     # Set random seeds
     random_seed = args_cmd.random_seed

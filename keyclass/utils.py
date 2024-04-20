@@ -104,6 +104,7 @@ def compute_metrics(y_preds: np.array,
         f1_scores = "Not Applicable"
     else:
         y_preds = (y_preds>0.5).astype(int).tolist()
+        accuracy = np.mean(y_preds == y_true)
         precision = precision_score(y_true, y_preds, average=average)
         recall = recall_score(y_true, y_preds, average=average)
         f1_scores = np.where((recall + precision) > 0,

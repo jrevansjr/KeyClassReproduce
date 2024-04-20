@@ -1,0 +1,62 @@
+activation: torch.nn.Sigmoid()
+average: weighted
+base_encoder: paraphrase-mpnet-base-v2
+classification: binary
+criterion: torch.nn.CrossEntropyLoss(reduction='none')
+data_path: KeyClassReproduce/scripts/data/
+dataset: mimic
+device: cuda
+end_model_batch_size: 32
+end_model_epochs: 2
+end_model_lr: 1e-4
+end_model_patience: 3
+end_model_weight_decay: 1e-4
+h_sizes:
+- 768
+- 1
+label_model: data_programming
+label_model_lr: 0.01
+label_model_n_epochs: 100
+max_num: 500
+min_df: 0.001
+model_path:  KeyClassReproduce/models/mimic0/
+n_bootstrap: 100
+n_class_being_tested: 0
+n_classes: 1
+n_jobs: 10
+ngram_range: !!python/tuple
+- 1
+- 3
+normalize_embeddings: false
+preds_path: KeyClassReproduce/results/mimic0/
+q_update_interval: 50
+results_path: KeyClassReproduce/results/mimic0/
+self_train_batch_size: 128
+self_train_lr: 1e-6
+self_train_patience: 8
+self_train_thresh: 1-2e-3
+self_train_weight_decay: 1e-4
+show_progress_bar: true
+size_of_dataset: 100
+target_00: infection, bacilli, tuberculosis, tuberculous infection, histological examination, bacteriological examination, confirmed tuberculosis, histological examination bacilli, in sputum tuberculosis
+target_01: malignant, neoplasm, carcinoma, benign neoplasm, lymph nodes, malignant neoplasm, lymphoma hodgkin's, carcinoma cell sites, limb lymph nodes
+target_02: diabetes, mellitus, uncontrolled, type diabetes, secondary diabetes, diabetes mellitus, uncontrolled diabetes mellitus, juvenile type diabetes, manifestations type diabetes
+target_03: anemia, hemolytic, neutropenia, iron deficiency, sickle-cell anemia, white blood, deficiency anemia chronic, hereditary hemolytic anemia, iron deficiency anemia
+target_04: psychotic, schizophrenia, bipolar, drug dependence, chronic schizophrenia, acute remission, episodic mood disorder, drug abuse dependence, chronic acute schizophrenia
+target_05: vision, eye, disorders, intractable pain, nervous system, eye disorders, nervous system disorder, chronic eye disease, disorders of vision
+target_06: vision, eye, disorders, eye diseases, visual impairment, vision disorders, eye and vision, eye diseases, visual impairment, vision disorders, disorders of the eye, diseases of vision, disorders affecting vision
+target_07: heart, myocardial, infarction, chronic kidney, heart failure, cerebrovascular disease, acute myocardial infarction, chronic heart failure, cerebrovascular accident effects
+target_08: respiratory, pneumonia, influenza, acute sinusitis, lung disease, chronic diseases, chronic respiratory diseases, pulmonary disease elsewhere, respiratory system infection
+target_09: ulcer, hemorrhage, obstruction, chronic ulcer, acute obstruction, hernia obstruction, digestive system hemorrhage, chronic digestive disorder, obstruction perforation ulcer
+target_10: kidney, urinary, genital, acute nephritis, female genital, chronic disorders, glomerulonephritis chronic, urinary system infection, genitourinary system disease
+target_11: pregnancy, childbirth, postpartum, antepartum complications, pregnancy complications, delivered postpartum, complications during childbirth, pregnancy childbirth complications, postpartum mother care
+target_12: skin, ulcer, dermatitis, contact dermatitis, pressure ulcer, skin abscess, subcutaneous tissue inflammation, chronic skin ulcer, contact skin dermatitis
+target_13: arthropathy, joint, limb, upper arm, shoulder region, multiple sites, musculoskeletal system disorder, pelvic region arthritis, chronic joint arthropathy
+target_14: congenital, anomalies, cleft, congenital anomalies, cleft palate, complete anomaly, congenital defect anomalies, congenital cleft anomaly, hereditary congenital disorder
+target_15: fetal, neonatal, malnutrition, affecting fetus, fetal malnutrition, newborn care, neonatal respiratory conditions, fetal growth malnutrition, affecting newborn fetus
+target_16: fracture, injury, poisoning, closed fracture, open wound, accidental poisoning, skull fracture injury, open fracture wound, accidental poisoning effects
+target_17: accident, collision, injuring, motor vehicle, causing injury, accidental poisoning, motor vehicle collision, causing adverse effects, accidental therapeutic effects
+target_18: history, examination, screening, personal history, family history, malignant history, personal history of malignant, family history examination, screening for malignancy
+topk: 50
+use_custom_encoder: false
+use_noise_aware_loss: true
