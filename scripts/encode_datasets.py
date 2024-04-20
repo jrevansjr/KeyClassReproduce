@@ -43,8 +43,6 @@ def run(args_cmd):
         model = models.Encoder(
             model_name=args['base_encoder'],
             device='cuda' if torch.cuda.is_available() else 'cpu')
-        
-    model.half()
 
     for split in ['train', 'test']:
         sentences = utils.fetch_data(dataset=args['dataset'],
