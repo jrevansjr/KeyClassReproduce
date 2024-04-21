@@ -255,6 +255,8 @@ def self_train(model: torch.nn.Module,
         if print_eval:
           with torch.no_grad():
             val_preds = model.predict(X_val)
+            if classification == 'binary':
+                val_preds = val_preds>0.5.astype(int)
             val_accuracy = np.mean(val_preds == y_val)
 
         pbar.set_postfix(tolerance_count=tolcount,
