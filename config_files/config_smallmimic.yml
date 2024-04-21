@@ -1,12 +1,12 @@
-activation: torch.nn.LeakyReLU()
+activation: torch.nn.Sigmoid()
 average: weighted
 base_encoder: paraphrase-mpnet-base-v2
-classification: multilabel
-criterion: torch.nn.BCEWithLogitsLoss(reduction='none')
+classification: binary
+criterion: torch.nn.CrossEntropyLoss(reduction='none')
 data_path: KeyClassReproduce/scripts/data/
 dataset: smallmimic
 device: cuda
-end_model_batch_size: 32
+end_model_batch_size: 2
 end_model_epochs: 1
 end_model_lr: 1e-4
 end_model_patience: 3
@@ -19,24 +19,44 @@ label_model_lr: 0.01
 label_model_n_epochs: 1
 max_num: 500
 min_df: 0.001
-model_path: KeyClassReproduce/models/smallmimic/
+model_path:  KeyClassReproduce/models/mimic_small/
 n_bootstrap: 100
-n_classes: 2
+n_class_being_tested: 0
+n_classes: 1
 n_jobs: 10
 ngram_range: !!python/tuple
 - 1
 - 3
 normalize_embeddings: false
-preds_path: KeyClassReproduce/results/smallmimic/
+preds_path: KeyClassReproduce/results/mimic_small/
 q_update_interval: 50
-results_path: KeyClassReproduce/results/smallmimic/
-self_train_batch_size: 16
+results_path: KeyClassReproduce/results/mimic_small/
+self_train_batch_size: 2
 self_train_lr: 1e-6
 self_train_patience: 8
 self_train_thresh: 1-2e-3
 self_train_weight_decay: 1e-4
 show_progress_bar: true
-target_00: infections, malaria, virus,bacilli, bacteriological, histological, tubercle, tuberculosis, tubercle bacilli
+size_of_dataset: 100
+target_00: infection, bacilli, tuberculous, bacteriological, histological, examination, tubercle, in, sputum, examination, tuberculosis, confirmed, histological examination, tubercle bacilli, in sputum, tuberculosis confirmed
+target_01: malignant, neoplasm, sites, limb, cell, carcinoma, lymph, nodes, lymphoma, hodgkin's, benign, malignant neoplasm, lymph nodes, benign neoplasm
+target_02: type, disorders, secondary, diabetes, mellitus, stated, uncontrolled, manifestations, type, ii, juvenile, type, deficiency, metabolism, secondary diabetes, diabetes mellitus, uncontrolled diabetes, type ii, juvenile type, manifestations type, secondary diabetes mellitus
+target_03: iron, deficiency, anemia, secondary, blood, anemias, anemia, hereditary, hemolytic, sickle-cell, thalassemia, crisis, disease, cell, chronic, congenital, factor, disorder, hemorrhagic, purpura, neutropenia, white, iron deficiency, deficiency anemia, hemolytic anemias, white blood
+target_04: psychotic, disorder, drug, type, schizophrenia, chronic, acute, remission, disorder, bipolar, episode, episodic, dependence, abuse, type schizophrenia
+target_05: nervous system
+target_06: vision, eye
+target_07: heart, acute, disease, disease, chronic, failure, kidney, stage, myocardial, infarction, episode, care, artery, embolism, cerebral, thrombosis, cerebrovascular, venous, late, effects, heart failure, chronic kidney, late effects, cerebrovascular disease
+target_08: acute, sinusitis, respiratory, virus, chronic, diseases, elsewhere, pneumonia, influenza, lung, pulmonary
+target_09: acute, chronic, ulcer, hemorrhage, obstruction, perforation, hernia, obstruction acute, obstruction chronic
+target_10: acute, glomerulonephritis, lesion, kidney, chronic, disorders, urinary, genital, female
+target_11: abortion, complication, episode, care, applicable, delivered, antepartum, pregnancy, complicating, childbirth, postpartum, mother
+target_12: carbuncle, furuncle, cellulitis, abscess, skin, dermatitis, contact, eczema, exfoliation, erythematous, percent, body, surface, pressure, ulcer, ulcer, contact dermatitis, body surface, surface exfoliation, pressure ulcer, body surface exfoliation
+target_13: site, shoulder, region, upper, arm, forearm, hand, pelvic, thigh, lower, leg, ankle, foot, sites, multiple, arthropathy, associated, arthropathy, joint, shoulder region, upper arm, pelvic region, lower leg, multiple sites, arthropathy associated
+target_14: congenital, anomalies, anomaly, cleft, complete, congenital anomalies
+target_15: affecting, fetus, newborn, respiratory, fetal, malnutrition, grams, neonatal, affecting fetus, fetal malnutrition
+target_16: closed, fracture, skull, intracranial, consciousness, loss, injury, open, wound, closed fracture, open fracture, open wound
+target_17: accident, collision, injuring, motor, vehicle, occupant, causing, injury, accidental, poisoning, effects, adverse, therapeutic, motor vehicle, accidental poisoning, causing adverse, adverse effects, causing adverse effects
+target_18: personal, history, malignant, family, examination, screening, personal history
 topk: 50
 use_custom_encoder: false
 use_noise_aware_loss: true
