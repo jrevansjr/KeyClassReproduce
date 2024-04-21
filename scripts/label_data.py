@@ -54,6 +54,9 @@ def run(args_cmd):
 
     args = utils.Parser(config_file_path=args_cmd.config).parse()
     args['n_class_being_tested'] = args_cmd.n_class
+    args['model_path'] = args['model_path'] + '/' + str(args_cmd.n_class)
+    args['preds_path'] = args['preds_path'] + '/' + str(args_cmd.n_class)
+    args['results_path'] = args['results_path'] + '/' + str(args_cmd.n_class)
     print(args)
 
     # Load training data
@@ -92,8 +95,8 @@ def run(args_cmd):
         if 'target' in a: label_names.append(args[a])
 
     if args['classification'] == 'binary':
-        print(label_names)
         label_names = [label_names[args['n_class_being_tested']]]
+        print(label_names)
 
     # Creating labeling functions
     labeler = create_lfs.CreateLabellingFunctions(
